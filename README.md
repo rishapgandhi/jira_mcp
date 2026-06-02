@@ -18,19 +18,29 @@ Most Jira MCP servers use third-party wrappers with unknown code. This server:
 - **Project-level config** — different Jira instances per project via env vars
 - **No telemetry, no analytics, no SaaS dependency**
 
-## Tools (9)
+## Tools (19)
 
-| Tool | Description |
-|------|-------------|
-| `jira_search` | Search issues using JQL (auto-scoped to project) |
-| `jira_get_issue` | Get full issue details with comments |
-| `jira_create_issue` | Create a new issue (Task, Bug, Story) |
-| `jira_update_issue` | Update summary, description, priority, labels |
-| `jira_transition` | Change status (In Progress, Done, etc.) |
-| `jira_add_comment` | Add a comment to an issue |
-| `jira_assign` | Assign issue to a team member |
-| `jira_my_issues` | Get my assigned/created/watched issues |
-| `jira_sprint_issues` | Get active sprint board |
+| Category | Tool | Description |
+|----------|------|-------------|
+| **Search** | `jira_search` | Search issues using JQL (auto-scoped to project) |
+| | `jira_my_issues` | Get my assigned/created/watched issues |
+| | `jira_sprint_issues` | Get active sprint board |
+| **Issues** | `jira_get_issue` | Get full issue details with comments |
+| | `jira_create_issue` | Create a new issue (Task, Bug, Story) |
+| | `jira_update_issue` | Update summary, description, priority, labels |
+| **Workflow** | `jira_transition` | Change status (In Progress, Done, etc.) |
+| | `jira_get_transitions` | List available transitions for an issue |
+| **Comments** | `jira_add_comment` | Add a comment (ADF format) |
+| | `jira_list_comments` | List all comments on an issue |
+| | `jira_delete_comment` | Delete a comment |
+| **Attachments** | `jira_attach_file` | Upload a file to an issue |
+| | `jira_list_attachments` | List all attachments on an issue |
+| | `jira_delete_attachment` | Delete an attachment |
+| **People** | `jira_assign` | Assign issue to a user |
+| | `jira_list_users` | Search users by name/email |
+| **Links** | `jira_link_issues` | Link two issues (Blocks, Relates, Duplicate) |
+| **Project** | `jira_get_project_info` | Get project details and issue types |
+| **Time** | `jira_log_work` | Log work/time on an issue |
 
 ## Quick Start
 
