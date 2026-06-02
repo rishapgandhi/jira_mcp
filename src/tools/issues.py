@@ -13,6 +13,7 @@ JIRA_TOOLS = [
     Tool(name="jira_assign", description="Assign an issue to a user", inputSchema={"type": "object", "properties": {"issue_key": {"type": "string"}, "assignee_id": {"type": "string", "description": "Atlassian account ID of the assignee"}}, "required": ["issue_key", "assignee_id"]}),
     Tool(name="jira_my_issues", description="Get issues assigned to me or created by me", inputSchema={"type": "object", "properties": {"filter": {"type": "string", "enum": ["assigned", "created", "watching"], "default": "assigned"}}, "required": []}),
     Tool(name="jira_sprint_issues", description="Get issues in the active sprint", inputSchema={"type": "object", "properties": {"status": {"type": "string", "description": "Filter by status (optional)", "default": ""}}, "required": []}),
+    Tool(name="jira_attach_file", description="Attach a file to a Jira issue", inputSchema={"type": "object", "properties": {"issue_key": {"type": "string"}, "file_path": {"type": "string", "description": "Absolute path to the file to attach"}}, "required": ["issue_key", "file_path"]}),
 ]
 
 
@@ -159,5 +160,28 @@ async def handle_jira(name: str, args: dict) -> str:
             assignee = f.get("assignee", {})
             lines.append(f"{i['key']} | {f.get('status',{}).get('name','')} | {f['summary']} | {assignee.get('displayName','Unassigned') if assignee else 'Unassigned'}")
         return "\n".join(lines)
+
+    elif name == "jira_attach_file":
+        import os as _os
+        file_path = args["file_path"]
+        if not _os.path.isfile(file_path):
+            return f"Error: File not found: {file_path}"
+        filename = _os.path.basename(file_path)
+        base_url = _os.environ.get("JIRA_BASE_URL", "").rstrip("/")
+        from base64 import b64encode as _b64
+        email = _os.environ.get("JIRA_EMAIL", "")
+        token = _os.environ.get("JIRA_API_TOKEN", "")
+        auth = _b64(f"{email}:{token}".encode()).decode()
+        import httpx as _httpx
+        with open(file_path, "rb") as f:
+            r = _httpx.post(
+                f"{base_url}/rest/api/3/issue/{args['issue_key']}/attachments",
+                headers={"Authorization": f"Basic {auth}", "X-Atlassian-Token": "no-check"},
+                files={"file": (filename, f)},
+                timeout=30,
+            )
+        if r.status_code in [200, 201]:
+            return f"✅ File '{filename}' attached to {args['issue_key']}"
+        return f"Error: {r.status_code} {r.text[:200]}"
 
     return "Unknown jira tool"
